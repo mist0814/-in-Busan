@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>맛픽 in Busan</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <style>
+    :root { --navy:#6070a5; --blue:#7bbcd4; --sky:#f0f6ff; --ink:#515b78; --orange:#efa58f; }
+    * { box-sizing:border-box; } body { margin:0; font-family:"Malgun Gothic",Arial,sans-serif; color:var(--ink); background:linear-gradient(160deg,#f1f6ff,#fffafa 48%,#e6f6f4); }
+    .app { width:min(100%,760px); min-height:100vh; margin:auto; padding:28px 20px 42px; } header { text-align:center; color:#fff; padding:24px 18px 42px; border-radius:28px; background:linear-gradient(135deg,#9fc7df,#b8addc); box-shadow:0 12px 28px #8292bd3d; }
+    .eyebrow { margin:0 0 8px; font-size:.85rem; font-weight:700; letter-spacing:.08em; } h1 { margin:0; font-size:clamp(2rem,8vw,3.1rem); } header p:last-child { margin:10px 0 0; } .busan-illustration { display:block; width:min(100%,280px); height:118px; margin:12px auto -12px; object-fit:cover; border-radius:18px; box-shadow:0 7px 16px #6f7faf29; }
+    main { margin-top:-25px; } .card { padding:24px; border-radius:22px; background:#ffffffeb; box-shadow:0 10px 28px #7d86a524; } h2 { margin:0 0 18px; font-size:1.3rem; } h3 { margin:0; font-size:1.07rem; }
+    .mode-buttons { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; } button { min-height:56px; border:2px solid #d8e8ef; border-radius:15px; padding:10px; cursor:pointer; font:inherit; font-weight:700; color:var(--navy); background:#fbfdff; transition:.2s; } button:hover,button:focus-visible { transform:translateY(-2px); border-color:var(--blue); } button.selected { color:#fff; border-color:var(--navy); background:var(--navy); box-shadow:0 6px 14px #6c78a333; }
+    label { display:block; margin:18px 0 8px; font-weight:700; } select,input[type="date"] { width:100%; min-height:54px; padding:0 14px; border:1px solid #d5dceb; border-radius:13px; color:var(--ink); background:#fff; font:inherit; } .selection,.notice { line-height:1.6; } .selection { margin:20px 0 0; padding:16px; border-radius:14px; color:#6070a5; background:var(--sky); } .complete-button { width:100%; margin-top:24px; color:#fff; border-color:var(--orange); background:var(--orange); } .complete-button:disabled { cursor:not-allowed; color:#8b94aa; border-color:#e4e8ee; background:#eef0f3; box-shadow:none; transform:none; } .notice { margin:20px 4px 0; color:#69758c; font-size:.84rem; }
+    #result-screen { display:none; margin-top:28px; } .back { min-height:44px; margin:0 0 18px 4px; padding:7px 12px; border:0; color:#6070a5; background:transparent; } .result-heading { margin:0 0 5px; color:var(--navy); font-size:1.7rem; } .result-sub { margin:0 0 20px; color:#74809b; } .section-title { margin:26px 0 12px; font-size:1.22rem; } .food-feature { overflow:hidden; border-radius:19px; background:#fff; box-shadow:0 7px 20px #7d86a51c; } .food-feature img { display:block; width:100%; height:220px; object-fit:cover; } .food-copy { padding:18px; } .tag { display:inline-block; margin-bottom:9px; padding:5px 10px; border-radius:99px; color:#667db0; font-size:.78rem; font-weight:bold; background:#edf0ff; } .food-copy p,.restaurant p { margin:8px 0 0; line-height:1.65; font-size:.92rem; } .food-list { display:grid; gap:9px; margin-top:12px; } .food-item { padding:13px 15px; border-radius:13px; background:#f5f8ff; font-size:.91rem; line-height:1.45; }
+    .restaurant-list { display:grid; gap:12px; } .restaurant { position:relative; width:100%; min-height:0; padding:18px 60px 18px 18px; text-align:left; border:1px solid #e2e4f0; background:#fff; } .restaurant:hover { background:#fafaff; } .rank { display:inline-grid; place-items:center; width:26px; height:26px; margin-right:6px; border-radius:50%; color:#fff; background:var(--blue); font-size:.82rem; } .arrow { position:absolute; right:18px; top:50%; transform:translateY(-50%); color:var(--blue); font-size:1.45rem; } .meta { color:#758099; font-size:.8rem; }
+    #map { height:400px; overflow:hidden; border:5px solid #fff; border-radius:24px; box-shadow:0 8px 22px #7d86a52b; } .map-legend { display:flex; gap:7px; align-items:center; margin:12px 4px; color:#6b768e; font-size:.85rem; } .bin-mini { font-size:1.2rem; } .bin-note { margin:0; padding:13px; border-radius:12px; color:#6070a5; line-height:1.55; font-size:.88rem; background:#f0f6ff; } .bin-icon { display:grid; place-items:center; width:38px; height:38px; border:3px solid #fff; border-radius:50%; font-size:20px; background:#fff; box-shadow:0 3px 9px #7c8bbc55; }
+    #restaurant-map { height:300px; overflow:hidden; border:5px solid #fff; border-radius:22px; box-shadow:0 8px 22px #7d86a52b; } #restaurant-detail-screen { margin-top:28px; } .info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:18px 0; } .info-box { padding:13px 8px; border-radius:14px; text-align:center; background:#f5f8ff; } .info-box span { display:block; margin-bottom:5px; color:#7c88a5; font-size:.75rem; } .info-box strong { color:var(--navy); font-size:.87rem; } .menu-list { display:grid; gap:8px; margin:10px 0 20px; } .menu-row { display:flex; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #e8eaf1; background:#fff; font-size:.9rem; } .review-list { display:grid; gap:10px; margin:10px 0 22px; } .review { margin:0; padding:16px; border-radius:15px; line-height:1.65; background:#fff8f4; } .review small { display:block; margin-top:8px; color:#8b7890; }
+    dialog { width:min(92vw,470px); border:0; border-radius:20px; color:var(--ink); box-shadow:0 16px 48px #001f3880; } dialog::backdrop { background:#052e4b85; } .modal-close { float:right; min-height:34px; border:0; padding:4px 9px; background:#eef8fc; } .modal-text { padding-top:18px; line-height:1.75; } .hidden { display:none!important; }
+    @media(max-width:420px){ .app{padding:16px 14px 30px} header{padding:22px 12px 46px;border-radius:22px}.card{padding:20px 16px}.mode-buttons{gap:8px}button{font-size:.91rem}#map{height:350px} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header><p class="eyebrow">BUSAN BEACH TRAVEL GUIDE</p><h1>맛픽 in Busan</h1><p>내 여행에 딱 맞는 부산 바다 안내</p><img class="busan-illustration" src="assets/busan-pastel-illustration.png" alt="광안대교와 부산 바다를 그린 파스텔 일러스트"></header>
+    <main>
+      <section class="card" id="selection-screen" aria-labelledby="start-title">
+        <h2 id="start-title">어떤 정보를 찾고 있나요?</h2>
+        <div class="mode-buttons" aria-label="이용 모드 선택"><button type="button" class="selected" data-mode="food" aria-pressed="true" onclick="window.pickMode('food')">🍽️ 맛집 추천</button><button type="button" data-mode="bin" aria-pressed="false" onclick="window.pickMode('bin')">🗑️ 쓰레기통 알리미</button></div>
+        <label for="beach">부산 해수욕장 선택</label>
+        <select id="beach" onchange="window.refreshPick()"><option value="" selected disabled>해수욕장을 선택해 주세요</option><option value="해운대 해수욕장">해운대 해수욕장</option><option value="광안리 해수욕장">광안리 해수욕장</option><option value="송정 해수욕장">송정 해수욕장</option><option value="다대포 해수욕장">다대포 해수욕장</option><option value="송도 해수욕장">송도 해수욕장</option></select>
+        <div id="date-field"><label for="travel-date">여행 날짜 선택</label><input id="travel-date" type="date" onchange="window.refreshPick()" oninput="window.refreshPick()"></div>
+        <p class="selection" id="selection-text"><strong>맛집 추천 모드</strong>를 선택했어요. 해수욕장과 여행 날짜를 골라 주세요.</p>
+        <button type="button" class="complete-button" id="complete-button" disabled onclick="window.completePick()">선택 완료</button>
+      </section>
+
+      <section id="result-screen" aria-live="polite">
+        <button type="button" class="back" id="back-button">← 조건 다시 고르기</button>
+        <div id="food-result" class="hidden">
+          <h2 class="result-heading"><span id="result-beach"></span> 맛집 픽</h2><p class="result-sub" id="result-date"></p>
+          <h3 class="section-title">이번 여행의 제철 음식</h3>
+          <article class="food-feature"><img id="season-image" src="assets/summer-seafood.png" alt="부산 제철 해산물 요리"><div class="food-copy"><span class="tag" id="season-tag"></span><h3 id="season-title"></h3><p id="season-description"></p></div></article>
+          <div class="food-list" id="food-list"></div>
+          <h3 class="section-title">근처 맛집 추천 순위</h3><div class="restaurant-list" id="restaurant-list"></div>
+          <p class="notice">맛집 순위·메뉴·거리 정보는 발표용 예시 데이터입니다. 방문 전 실제 영업 정보를 확인해 주세요.</p>
+        </div>
+        <div id="bin-result" class="hidden">
+          <h2 class="result-heading"><span id="bin-beach"></span> 쓰레기통</h2><p class="result-sub">아이콘을 눌러 위치 안내를 확인하세요.</p>
+          <div id="map" aria-label="선택한 해수욕장 주변 OpenStreetMap 지도"></div>
+          <div class="map-legend"><span class="bin-mini">🗑️</span> 쓰레기통 위치(프로토타입 예시)</div><p class="bin-note" id="bin-note">지도 위 아이콘을 누르면 위치 설명이 표시됩니다.</p>
+          <p class="notice">이 지도와 쓰레기통 위치는 서비스 시연용 예시입니다. 실제 위치는 현장 안내를 확인해 주세요.</p>
+        </div>
+      </section>
+      <section id="restaurant-detail-screen" aria-live="polite" style="display:none">
+        <button type="button" class="back" id="detail-back-button">← 맛집 목록으로</button>
+        <h2 class="result-heading" id="detail-name"></h2>
+        <p class="result-sub" id="detail-category"></p>
+        <div class="info-grid"><div class="info-box"><span>해수욕장에서</span><strong id="detail-walk"></strong></div><div class="info-box"><span>대표 메뉴 가격</span><strong id="detail-price"></strong></div><div class="info-box"><span>평점</span><strong>★ 4.7</strong></div></div>
+        <h3 class="section-title">대표 메뉴</h3><div class="menu-list" id="detail-menu"></div>
+        <h3 class="section-title">방문 후기</h3><div class="review-list" id="detail-review"></div>
+        <h3 class="section-title">식당 위치</h3><div id="restaurant-map" aria-label="선택한 맛집의 OpenStreetMap 지도"></div>
+        <p class="notice">메뉴·가격·후기·이동 시간·지도 위치는 프로토타입용 예시 데이터입니다. 방문 전 실제 정보를 확인해 주세요.</p>
+      </section>
+    </main>
+  </div>
+  <dialog id="restaurant-modal"><button class="modal-close" id="modal-close">닫기</button><div class="modal-text" id="modal-text"></div></dialog>
+  <script>
+    (function () {
+      var currentMode = 'food';
+      var beachSelect = document.getElementById('beach');
+      var dateInput = document.getElementById('travel-date');
+      var dateField = document.getElementById('date-field');
+      var completeButton = document.getElementById('complete-button');
+      var summaryText = document.getElementById('selection-text');
+      var modeButtons = document.querySelectorAll('[data-mode]');
+
+      window.refreshPick = function () {
+        var ready = beachSelect.value !== '' && (currentMode === 'bin' || dateInput.value !== '');
+        completeButton.disabled = !ready;
+        dateField.hidden = currentMode === 'bin';
+        if (!beachSelect.value) summaryText.innerHTML = '<strong>' + (currentMode === 'food' ? '맛집 추천' : '쓰레기통 알리미') + ' 모드</strong>를 선택했어요. 해수욕장을 골라 주세요.';
+        else if (currentMode === 'food' && !dateInput.value) summaryText.innerHTML = '<strong>맛집 추천 모드</strong>에서 ' + beachSelect.value + ' 여행을 준비하고 있어요. 날짜를 골라 주세요.';
+        else summaryText.innerHTML = '<strong>선택이 완료됐어요.</strong> 선택 완료 버튼을 눌러 정보를 확인해 주세요.';
+      };
+      window.pickMode = function (nextMode) {
+        currentMode = nextMode;
+        for (var i = 0; i < modeButtons.length; i += 1) {
+          var active = modeButtons[i].getAttribute('data-mode') === nextMode;
+          modeButtons[i].classList.toggle('selected', active);
+          modeButtons[i].setAttribute('aria-pressed', String(active));
+        }
+        window.refreshPick();
+      };
+      window.completePick = function () {
+        if (completeButton.disabled) return;
+        document.getElementById('selection-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        window.dispatchEvent(new CustomEvent('matpick-complete', { detail: { mode: currentMode } }));
+        window.scrollTo(0, 0);
+      };
+      window.refreshPick();
+    }());
+  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    const restaurants={
+      '해운대 해수욕장':[['해운대 바다식당','해산물 한 상 · 해변에서 도보 4분','제철 회와 해물탕을 함께 즐길 수 있는 예시 맛집입니다.'],['달맞이 국수집','멸치국수 · 도보 7분','부담 없이 든든한 한 끼를 찾을 때 추천하는 예시 맛집입니다.'],['파도 커피하우스','바다 전망 디저트 · 도보 3분','여행 중 잠시 쉬어가기 좋은 예시 카페입니다.']],
+      '광안리 해수욕장':[['광안대교 회관','모둠회 · 도보 5분','광안대교 야경과 함께 회를 즐기는 예시 맛집입니다.'],['민락 바다국밥','돼지국밥 · 도보 8분','부산식 국밥으로 식사를 할 수 있는 예시 맛집입니다.'],['파란 조개구이','조개구이 · 도보 6분','여럿이 나눠 먹기 좋은 조개구이 예시 맛집입니다.']],
+      '송정 해수욕장':[['송정 파도밥상','생선구이 · 도보 4분','바다 여행 전후 따뜻한 생선구이를 즐기는 예시 맛집입니다.'],['기장 멸치국수','멸치국수 · 도보 9분','깔끔한 국물의 부산식 멸치국수 예시 맛집입니다.'],['서핑 브런치','브런치 · 도보 2분','송정의 여유로운 분위기를 담은 예시 브런치 가게입니다.']],
+      '다대포 해수욕장':[['다대포 조개마당','조개구이 · 도보 6분','해변 가까이에서 조개구이를 즐기는 예시 맛집입니다.'],['몰운대 칼국수','바지락칼국수 · 도보 10분','시원한 바지락 국물이 특징인 예시 맛집입니다.'],['노을 분식','부산 어묵 · 도보 3분','간단하게 부산 어묵을 맛볼 수 있는 예시 가게입니다.']],
+      '송도 해수욕장':[['송도 암남횟집','모둠회 · 도보 5분','송도 바다를 보며 회를 즐기는 예시 맛집입니다.'],['케이블카 밥상','해물덮밥 · 도보 7분','여행 동선을 고려한 해물덮밥 예시 맛집입니다.'],['바다마을 어묵','어묵 · 도보 4분','부산 어묵을 간단히 맛볼 수 있는 예시 가게입니다.']]
+    };
+    const seasons=[
+      {name:'겨울',months:[12,1,2],title:'탱글한 부산 굴과 대구',desc:'겨울에는 살이 차오른 굴과 대구가 잘 어울려요. 따뜻한 국물 요리나 신선한 굴 요리로 부산 바다의 겨울 맛을 즐겨 보세요.',image:'assets/winter-oyster-cod.png',alt:'굴과 대구가 들어간 겨울 국물 요리',foods:['굴: 굴국밥·굴전으로 따뜻하게 즐기기','대구: 맑은탕으로 담백하게 즐기기','시금치: 겨울 밥상에 곁들이기']},
+      {name:'봄',months:[3,4,5],title:'향긋한 봄도다리와 미나리',desc:'봄 바다는 도다리와 미나리의 향긋한 조합이 특별해요. 가볍고 산뜻한 제철 한 끼를 추천합니다.',image:'assets/spring-flounder.png',alt:'도다리와 쑥이 들어간 봄 국물 요리',foods:['도다리: 쑥국 또는 회로 즐기기','미나리: 해물전과 함께 즐기기','주꾸미: 볶음으로 매콤하게 즐기기']},
+      {name:'여름',months:[6,7,8],title:'시원한 장어와 싱싱한 해산물',desc:'여름 부산에서는 기력 보충에 좋은 장어와 신선한 회를 만나 보세요. 더운 날에는 시원한 물회도 잘 어울립니다.',image:'assets/summer-seafood.png',alt:'장어와 해산물로 차린 여름 요리',foods:['장어: 구이로 든든하게 즐기기','물회: 차갑고 새콤하게 즐기기','전복: 죽 또는 버터구이로 즐기기']},
+      {name:'가을',months:[9,10,11],title:'고소한 전어와 꽃게',desc:'가을에는 기름진 전어와 살이 오른 꽃게가 여행 식탁을 풍성하게 해 줍니다.',image:'assets/autumn-gizzard-shad.png',alt:'전어와 꽃게로 차린 가을 해산물 요리',foods:['전어: 구이 또는 회로 즐기기','꽃게: 찜과 탕으로 즐기기','고등어: 구이로 고소하게 즐기기']}
+    ];
+    const modeButtons=document.querySelectorAll('[data-mode]'),beach=document.querySelector('#beach'),date=document.querySelector('#travel-date'),dateField=document.querySelector('#date-field'),complete=document.querySelector('#complete-button'),summary=document.querySelector('#selection-text'); let mode='food';
+    function updateSelection(){const hasBeach=beach.value.trim()!=='';const hasDate=date.value.trim()!=='';const completeReady=hasBeach&&(mode==='bin'||hasDate);complete.disabled=!completeReady;complete.setAttribute('aria-disabled',String(!completeReady));dateField.hidden=mode==='bin';if(!hasBeach) summary.innerHTML=`<strong>${mode==='food'?'맛집 추천':'쓰레기통 알리미'} 모드</strong>를 선택했어요. 해수욕장을 골라 주세요.`;else if(mode==='food'&&!hasDate) summary.innerHTML=`<strong>맛집 추천 모드</strong>에서 ${beach.value} 여행을 준비하고 있어요. 날짜를 골라 주세요.`;else summary.innerHTML=`<strong>선택이 완료됐어요.</strong> ${beach.value} ${mode==='food'?'여행 맛집 정보':'쓰레기통 위치'}를 확인할 수 있어요.`;}
+    modeButtons.forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;modeButtons.forEach(item=>{const on=item===btn;item.classList.toggle('selected',on);item.setAttribute('aria-pressed',on)});updateSelection()}));['change','input'].forEach(eventName=>{beach.addEventListener(eventName,updateSelection);date.addEventListener(eventName,updateSelection)});updateSelection();
+    function renderFood(){const d=new Date(`${date.value}T00:00:00`),season=seasons.find(s=>s.months.includes(d.getMonth()+1));document.querySelector('#result-beach').textContent=beach.value.replace(' 해수욕장','');document.querySelector('#result-date').textContent=`${date.value.replaceAll('-','.')} · ${season.name} 여행에 어울리는 추천`;document.querySelector('#season-image').src=season.image;document.querySelector('#season-image').alt=season.alt;document.querySelector('#season-tag').textContent=`${season.name} 제철 음식`;document.querySelector('#season-title').textContent=season.title;document.querySelector('#season-description').textContent=season.desc;document.querySelector('#food-list').innerHTML=season.foods.map(food=>`<div class="food-item">🥢 ${food}</div>`).join('');document.querySelector('#restaurant-list').innerHTML=restaurants[beach.value].map((item,i)=>`<button class="restaurant" data-index="${i}"><span class="rank">${i+1}</span><strong>${item[0]}</strong><p class="meta">${item[1]}</p><span class="arrow">›</span></button>`).join('');document.querySelectorAll('.restaurant').forEach(button=>button.addEventListener('click',()=>renderRestaurantDetail(restaurants[beach.value][button.dataset.index],Number(button.dataset.index))));}
+    const beachLocations={'해운대 해수욕장':[35.1587,129.1604],'광안리 해수욕장':[35.1532,129.1185],'송정 해수욕장':[35.1783,129.1994],'다대포 해수욕장':[35.0465,128.9674],'송도 해수욕장':[35.0765,129.0167]};let map,mapMarkers=[];
+    function renderBins(){const short=beach.value.replace(' 해수욕장',''),center=beachLocations[beach.value];document.querySelector('#bin-beach').textContent=short;if(!map){map=L.map('map').setView(center,16);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);}map.setView(center,16);mapMarkers.forEach(marker=>map.removeLayer(marker));mapMarkers=[];const spots=[[.00038,-.00045,'해변 입구 안내소 옆'],[-.00025,.00023,'중앙 산책로 교차점'],[.0003,.00055,'화장실 및 샤워실 앞'],[-.00045,-.00018,'해변 끝 주차장 방향']];const binIcon=L.divIcon({className:'',html:'<div class="bin-icon">🗑️</div>',iconSize:[38,38],iconAnchor:[19,19]});spots.forEach((spot,index)=>{const marker=L.marker([center[0]+spot[0],center[1]+spot[1]],{icon:binIcon}).addTo(map).bindPopup(`<strong>🗑️ 쓰레기통 ${index+1}</strong><br>${spot[2]}<br><small>프로토타입 예시 위치</small>`);mapMarkers.push(marker)});setTimeout(()=>map.invalidateSize(),0);}
+    const detailSets=[{walk:'도보 4분',price:'15,000원~',reviews:['“바다를 보고 먹으니 여행 기분이 더 났어요. 해산물이 싱싱하고 양도 넉넉했어요.”','“직원분이 메뉴를 친절하게 설명해 주셨어요. 가족과 함께 오기 좋아요.”','“해변 산책 후 들르기 편한 위치예요. 다음에 또 오고 싶어요.”']},{walk:'도보 7분',price:'8,000원~',reviews:['“혼자 가도 편하게 먹기 좋았어요. 국물이 깔끔하고 해변 산책 뒤에 딱이에요.”','“가격이 부담스럽지 않고 음식이 빨리 나와서 좋았어요.”','“비 오는 날 따뜻한 국수 한 그릇 먹기 좋은 곳이에요.”']},{walk:'도보 3분',price:'6,500원~',reviews:['“창가 자리에 앉아 바다를 볼 수 있어서 좋았어요. 가벼운 간식과 함께 쉬기 좋아요.”','“사진이 예쁘게 나와서 여행 기록 남기기 좋았어요.”','“음료가 많이 달지 않아 좋았고, 해변과도 가까워요.”']}];
+    const menuByRestaurant={'해운대 바다식당':[['해운대 해물 한 상','32,000원'],['전복 버터구이','24,000원'],['성게알 비빔밥','19,000원']],'달맞이 국수집':[['들깨 칼국수','9,000원'],['김치말이국수','8,500원'],['왕만두','6,000원']],'파도 커피하우스':[['파도 크림라테','6,800원'],['블루베리 요거트볼','9,500원'],['소금빵 세트','7,000원']],'광안대교 회관':[['광안리 숙성회','38,000원'],['매운탕','10,000원'],['해초비빔밥','12,000원']],'민락 바다국밥':[['돼지국밥','10,000원'],['수육백반','13,000원'],['순대 한 접시','8,000원']],'파란 조개구이':[['키조개 관자구이','25,000원'],['가리비 치즈구이','22,000원'],['해물 라면','7,000원']],'송정 파도밥상':[['고등어 숯불구이','14,000원'],['갈치조림 정식','16,000원'],['보리새우 미역국','8,000원']],'기장 멸치국수':[['기장 멸치국수','8,000원'],['유부초밥','4,500원'],['비빔국수','8,500원']],'서핑 브런치':[['아보카도 새우 토스트','14,000원'],['송정 에그베네딕트','15,500원'],['레몬 에이드','5,500원']],'다대포 조개마당':[['바지락 술찜','18,000원'],['새우 소금구이','23,000원'],['치즈 가리비','19,000원']],'몰운대 칼국수':[['바지락 칼국수','9,500원'],['해물파전','13,000원'],['김가루 주먹밥','4,000원']],'노을 분식':[['부산 어묵꼬치','2,000원'],['물떡','1,500원'],['떡볶이 한 접시','4,500원']],'송도 암남횟집':[['암남도 모둠회','40,000원'],['멍게비빔밥','13,000원'],['해물된장찌개','9,000원']],'케이블카 밥상':[['전복 해물덮밥','16,000원'],['낙지볶음 정식','15,000원'],['유자 막걸리','6,000원']],'바다마을 어묵':[['부산 물떡','2,000원'],['새우 어묵바','3,500원'],['어묵 우동','6,500원']]};let restaurantMap,restaurantMarker;
+    const reviewByRestaurant={'해운대 바다식당':['“성게알 비빔밥이 고소하고 전복도 부드러웠어요. 부모님과 오기 좋아요.”','“해산물 한 상이 푸짐해서 둘이 나눠 먹기 충분했어요.”','“해운대 바다를 구경하고 저녁 먹기 좋은 동선이에요.”'],'달맞이 국수집':['“들깨 국물이 진하고 면이 쫄깃했어요. 비 오는 날 생각날 맛이에요.”','“왕만두가 큼직해서 국수랑 같이 먹기 좋았어요.”','“조용한 골목에 있어서 산책하다 들르기 편했어요.”'],'파도 커피하우스':['“크림라테 색이 예쁘고 부드러웠어요. 창가 분위기도 좋아요.”','“요거트볼 과일이 상큼해서 더운 날 먹기 좋았어요.”','“소금빵이 갓 구운 듯 따뜻했어요. 사진도 예쁘게 나와요.”'],'광안대교 회관':['“숙성회가 쫀득했고 광안대교 야경과 잘 어울렸어요.”','“해초비빔밥이 깔끔해서 회와 함께 먹기 좋았어요.”','“저녁 시간에는 미리 방문하면 더 여유롭게 식사할 수 있어요.”'],'민락 바다국밥':['“국물이 진하지만 느끼하지 않아 아침 식사로 좋았어요.”','“수육이 촉촉하고 반찬도 정갈하게 나왔어요.”','“바닷가에서 놀고 든든하게 먹기 좋은 부산식 국밥이에요.”'],'파란 조개구이':['“치즈 가리비가 고소하고 아이들도 잘 먹었어요.”','“관자가 탱글탱글해서 구워 먹는 재미가 있었어요.”','“여럿이 가서 다양한 조개를 나눠 먹기 좋았습니다.”'],'송정 파도밥상':['“숯불 향이 밴 고등어가 정말 고소했어요.”','“갈치조림 양념이 밥과 잘 어울려 한 그릇 비웠어요.”','“서핑하고 나서 따뜻한 집밥 느낌의 식사를 할 수 있었어요.”'],'기장 멸치국수':['“멸치 육수가 깔끔하고 유부초밥과 궁합이 좋아요.”','“비빔국수 양념이 너무 맵지 않아 부담 없었어요.”','“빠르게 한 끼 먹고 송정 해변으로 가기 좋았습니다.”'],'서핑 브런치':['“새우 토스트가 바삭하고 채소가 신선했어요.”','“에그베네딕트 소스가 부드러워서 만족스러웠어요.”','“해변 가까운 테라스에서 느긋하게 브런치를 즐겼어요.”'],'다대포 조개마당':['“바지락 술찜 국물이 시원해서 계속 떠먹게 됐어요.”','“새우가 통통하고 불판이 깔끔하게 관리되어 있었어요.”','“노을 보기 전 저녁으로 먹기 좋은 분위기였습니다.”'],'몰운대 칼국수':['“바지락이 넉넉하게 들어가 국물이 정말 시원했어요.”','“해물파전이 바삭하고 칼국수와 잘 어울렸어요.”','“몰운대 산책 후 따뜻한 음식이 생각날 때 추천해요.”'],'노을 분식':['“물떡 국물이 달큰해서 부산 여행 느낌이 났어요.”','“어묵꼬치 종류가 다양해서 골라 먹는 재미가 있어요.”','“가볍게 간식 먹고 다대포 노을 보러 가기 좋았습니다.”'],'송도 암남횟집':['“멍게비빔밥 향이 좋고 회도 신선했어요.”','“해물된장찌개가 구수해서 마지막까지 맛있게 먹었어요.”','“송도 케이블카 타기 전에 들르기 좋은 위치예요.”'],'케이블카 밥상':['“전복이 듬뿍 들어간 덮밥이라 여행 중 든든했어요.”','“낙지볶음이 매콤하지만 밥과 먹기 딱 좋았습니다.”','“케이블카 코스와 가까워서 이동 시간을 아낄 수 있었어요.”'],'바다마을 어묵':['“새우 어묵바가 탱글하고 간식으로 좋았어요.”','“어묵 우동 국물이 따뜻해서 바람 부는 날 잘 어울려요.”','“저렴하게 부산 어묵을 여러 가지 맛볼 수 있었어요.”']};let restaurantMap,restaurantMarker;
+    function renderRestaurantDetail(item,index){const info=detailSets[index],menus=menuByRestaurant[item[0]],reviews=reviewByRestaurant[item[0]],base=beachLocations[beach.value],offsets=[[.00042,.00032],[-.00028,.00048],[.00036,-.00042]],position=[base[0]+offsets[index][0],base[1]+offsets[index][1]];document.querySelector('#result-screen').style.display='none';document.querySelector('#restaurant-detail-screen').style.display='block';document.querySelector('#detail-name').textContent=item[0];document.querySelector('#detail-category').textContent=item[1];document.querySelector('#detail-walk').textContent=info.walk;document.querySelector('#detail-price').textContent=menus[0][1];document.querySelector('#detail-menu').innerHTML=menus.map(menu=>`<div class="menu-row"><span>${menu[0]}</span><strong>${menu[1]}</strong></div>`).join('');document.querySelector('#detail-review').innerHTML=reviews.map((review,i)=>`<div class="review">${review}<small>— 맛픽 체험단 예시 후기 ${i+1}</small></div>`).join('');if(!restaurantMap){restaurantMap=L.map('restaurant-map');L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(restaurantMap)}restaurantMap.setView(position,17);if(restaurantMarker)restaurantMap.removeLayer(restaurantMarker);restaurantMarker=L.marker(position).addTo(restaurantMap).bindPopup(`<strong>${item[0]}</strong><br>프로토타입 예시 위치`).openPopup();setTimeout(()=>restaurantMap.invalidateSize(),0);window.scrollTo({top:0,behavior:'smooth'});}
+    complete.addEventListener('click',()=>{document.querySelector('#selection-screen').style.display='none';document.querySelector('#result-screen').style.display='block';document.querySelector('#food-result').classList.toggle('hidden',mode!=='food');document.querySelector('#bin-result').classList.toggle('hidden',mode!=='bin');mode==='food'?renderFood():renderBins();window.scrollTo({top:0,behavior:'smooth'});});document.querySelector('#back-button').addEventListener('click',()=>{document.querySelector('#result-screen').style.display='none';document.querySelector('#selection-screen').style.display='block';window.scrollTo({top:0,behavior:'smooth'});});document.querySelector('#detail-back-button').addEventListener('click',()=>{document.querySelector('#restaurant-detail-screen').style.display='none';document.querySelector('#result-screen').style.display='block';window.scrollTo({top:0,behavior:'smooth'});});document.querySelector('#modal-close').addEventListener('click',()=>document.querySelector('#restaurant-modal').close());
+  </script>
+  <script>
+    (function () {
+      var selectedBeach = '';
+      var selectedMode = 'food';
+      var foodBySeason = [
+        { months:[12,1,2], tag:'겨울 제철 음식', title:'탱글한 부산 굴과 대구', image:'assets/winter-oyster-cod.png', foods:['굴국밥 · 12,000원', '대구 맑은탕 · 14,000원', '굴전 · 15,000원'] },
+        { months:[3,4,5], tag:'봄 제철 음식', title:'향긋한 봄도다리와 미나리', image:'assets/spring-flounder.png', foods:['도다리쑥국 · 15,000원', '주꾸미 볶음 · 18,000원', '미나리 해물전 · 14,000원'] },
+        { months:[6,7,8], tag:'여름 제철 음식', title:'시원한 장어와 싱싱한 해산물', image:'assets/summer-seafood.png', foods:['장어구이 · 22,000원', '전복 물회 · 17,000원', '성게 미역국 · 13,000원'] },
+        { months:[9,10,11], tag:'가을 제철 음식', title:'고소한 전어와 꽃게', image:'assets/autumn-gizzard-shad.png', foods:['전어구이 · 16,000원', '꽃게탕 · 20,000원', '고등어구이 · 12,000원'] }
+      ];
+      var places = {
+        '해운대 해수욕장': [['해운대 바다식당','해물 한 상','전복 버터구이','32,000원'],['달맞이 국수집','들깨 칼국수','왕만두','9,000원'],['파도 커피하우스','파도 크림라테','요거트볼','6,800원']],
+        '광안리 해수욕장': [['광안대교 회관','광안리 숙성회','해초비빔밥','38,000원'],['민락 바다국밥','돼지국밥','수육백반','10,000원'],['파란 조개구이','키조개 관자구이','치즈 가리비','25,000원']],
+        '송정 해수욕장': [['송정 파도밥상','고등어 숯불구이','갈치조림','14,000원'],['기장 멸치국수','기장 멸치국수','유부초밥','8,000원'],['서핑 브런치','새우 토스트','에그베네딕트','14,000원']],
+        '다대포 해수욕장': [['다대포 조개마당','바지락 술찜','새우 소금구이','18,000원'],['몰운대 칼국수','바지락 칼국수','해물파전','9,500원'],['노을 분식','부산 어묵꼬치','물떡','2,000원']],
+        '송도 해수욕장': [['송도 암남횟집','암남도 모둠회','멍게비빔밥','40,000원'],['케이블카 밥상','전복 해물덮밥','낙지볶음','16,000원'],['바다마을 어묵','부산 물떡','새우 어묵바','2,000원']]
+      };
+      var centers = {'해운대 해수욕장':[35.1587,129.1604],'광안리 해수욕장':[35.1532,129.1185],'송정 해수욕장':[35.1783,129.1994],'다대포 해수욕장':[35.0465,128.9674],'송도 해수욕장':[35.0765,129.0167]};
+      var binMap, restaurantMap, binLayers = [], restaurantLayer;
+      function resetToChoice() { document.getElementById('result-screen').style.display='none'; document.getElementById('restaurant-detail-screen').style.display='none'; document.getElementById('selection-screen').style.display='block'; window.scrollTo(0,0); }
+      function mapTile(map) { if (!window.L) return false; L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map); return true; }
+      function renderFood() { var month = Number(document.getElementById('travel-date').value.slice(5,7)); var season = foodBySeason[2]; var list = foodBySeason; for (var i=0;i<list.length;i+=1) if (list[i].months.indexOf(month)!==-1) season=list[i]; document.getElementById('result-beach').textContent=selectedBeach.replace(' 해수욕장',''); document.getElementById('result-date').textContent=season.tag+' · '+document.getElementById('travel-date').value; document.getElementById('season-image').src=season.image; document.getElementById('season-tag').textContent=season.tag; document.getElementById('season-title').textContent=season.title; document.getElementById('season-description').textContent='선택한 여행 시기에 부산에서 즐기기 좋은 제철 음식입니다.'; document.getElementById('food-list').innerHTML=season.foods.map(function(food){return '<div class="food-item">🥢 '+food+'</div>';}).join(''); document.getElementById('restaurant-list').innerHTML=places[selectedBeach].map(function(place,index){return '<button type="button" class="restaurant recovery-place" data-place="'+index+'"><span class="rank">'+(index+1)+'</span><strong>'+place[0]+'</strong><p class="meta">'+place[1]+' · 해변에서 도보 '+(index===0?4:index===1?7:3)+'분</p><span class="arrow">›</span></button>';}).join(''); var cards=document.querySelectorAll('.recovery-place'); for(var j=0;j<cards.length;j+=1){cards[j].addEventListener('click',function(){showDetail(Number(this.getAttribute('data-place')));});} }
+      function renderBins() { var center=centers[selectedBeach]; document.getElementById('bin-beach').textContent=selectedBeach.replace(' 해수욕장',''); if (!window.L) { document.getElementById('map').innerHTML='<p class="bin-note">지도를 불러오는 중입니다. 인터넷 연결을 확인해 주세요.</p>'; return; } if(!binMap){binMap=L.map('map');mapTile(binMap);} binMap.setView(center,16); for(var i=0;i<binLayers.length;i+=1)binMap.removeLayer(binLayers[i]);binLayers=[]; [[.00035,-.0004],[-.0002,.0003],[.00025,.0005],[-.0004,-.0002]].forEach(function(offset,index){var marker=L.marker([center[0]+offset[0],center[1]+offset[1]]).addTo(binMap).bindPopup('🗑️ 쓰레기통 '+(index+1)+'<br>프로토타입 예시 위치');binLayers.push(marker);});setTimeout(function(){binMap.invalidateSize();},0); }
+      function showDetail(index) { var place=places[selectedBeach][index]; var walk=[4,7,3][index]; document.getElementById('result-screen').style.display='none'; document.getElementById('restaurant-detail-screen').style.display='block'; document.getElementById('detail-name').textContent=place[0]; document.getElementById('detail-category').textContent=place[1]+' 전문 · 프로토타입 예시 정보'; document.getElementById('detail-walk').textContent='도보 '+walk+'분'; document.getElementById('detail-price').textContent=place[3]; document.getElementById('detail-menu').innerHTML='<div class="menu-row"><span>'+place[1]+'</span><strong>'+place[3]+'</strong></div><div class="menu-row"><span>'+place[2]+'</span><strong>8,000원~</strong></div><div class="menu-row"><span>오늘의 추천 메뉴</span><strong>12,000원~</strong></div>'; document.getElementById('detail-review').innerHTML=['음식이 깔끔하고 여행 중 들르기 편했어요.','해변과 가까워서 산책 후 방문하기 좋았어요.','대표 메뉴가 인상적이었고 다시 오고 싶어요.'].map(function(review,i){return '<div class="review">“'+review+'”<small>— 맛픽 예시 후기 '+(i+1)+'</small></div>';}).join(''); var center=centers[selectedBeach],pos=[center[0]+[.00042,-.00028,.00036][index],center[1]+[.00032,.00048,-.00042][index]]; if(window.L){if(!restaurantMap){restaurantMap=L.map('restaurant-map');mapTile(restaurantMap);}restaurantMap.setView(pos,17);if(restaurantLayer)restaurantMap.removeLayer(restaurantLayer);restaurantLayer=L.marker(pos).addTo(restaurantMap).bindPopup(place[0]+'<br>프로토타입 예시 위치').openPopup();setTimeout(function(){restaurantMap.invalidateSize();},0);}window.scrollTo(0,0); }
+      window.addEventListener('matpick-complete',function(event){selectedMode=event.detail.mode;selectedBeach=document.getElementById('beach').value;document.getElementById('food-result').classList.toggle('hidden',selectedMode!=='food');document.getElementById('bin-result').classList.toggle('hidden',selectedMode!=='bin');if(selectedMode==='food')renderFood();else renderBins();});
+      document.getElementById('back-button').addEventListener('click',resetToChoice); document.getElementById('detail-back-button').addEventListener('click',function(){document.getElementById('restaurant-detail-screen').style.display='none';document.getElementById('result-screen').style.display='block';window.scrollTo(0,0);});
+    }());
+  </script>
+</body>
+</html>
