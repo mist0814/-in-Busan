@@ -6,24 +6,28 @@
   <title>맛픽 in Busan</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <style>
-    :root { --navy:#6070a5; --blue:#7bbcd4; --sky:#f0f6ff; --ink:#515b78; --orange:#efa58f; }
-    * { box-sizing:border-box; } body { margin:0; font-family:"Malgun Gothic",Arial,sans-serif; color:var(--ink); background:linear-gradient(160deg,#f1f6ff,#fffafa 48%,#e6f6f4); }
-    .app { width:min(100%,760px); min-height:100vh; margin:auto; padding:28px 20px 42px; } header { text-align:center; color:#fff; padding:24px 18px 42px; border-radius:28px; background:linear-gradient(135deg,#9fc7df,#b8addc); box-shadow:0 12px 28px #8292bd3d; }
+    :root { --navy:#07578d; --blue:#1597d0; --sky:#e7f6ff; --ink:#194563; --orange:#ff8a3d; }
+    * { box-sizing:border-box; } body { margin:0; font-family:"Malgun Gothic",Arial,sans-serif; color:var(--ink); background:linear-gradient(160deg,#dff4ff,#f7fcff 48%,#ccecff); }
+    .app { width:min(100%,760px); min-height:100vh; margin:auto; padding:28px 20px 42px; } header { text-align:center; color:#fff; padding:24px 18px 42px; border-radius:28px; background:linear-gradient(135deg,#075b9a,#18aee5); box-shadow:0 12px 28px #075b9a3d; }
     .eyebrow { margin:0 0 8px; font-size:.85rem; font-weight:700; letter-spacing:.08em; } h1 { margin:0; font-size:clamp(2rem,8vw,3.1rem); } .app-intro { max-width:530px; margin:14px auto 0; line-height:1.65; font-size:.92rem; }
-    main { margin-top:-25px; } .card { padding:24px; border-radius:22px; background:#ffffffeb; box-shadow:0 10px 28px #7d86a524; } h2 { margin:0 0 18px; font-size:1.3rem; } h3 { margin:0; font-size:1.07rem; }
-    .mode-buttons { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; } button { min-height:56px; border:2px solid #d8e8ef; border-radius:15px; padding:10px; cursor:pointer; font:inherit; font-weight:700; color:var(--navy); background:#fbfdff; transition:.2s; } button:hover,button:focus-visible { transform:translateY(-2px); border-color:var(--blue); } button.selected { color:#fff; border-color:var(--navy); background:var(--navy); box-shadow:0 6px 14px #6c78a333; }
-    label { display:block; margin:18px 0 8px; font-weight:700; } select,input[type="date"] { width:100%; min-height:54px; padding:0 14px; border:1px solid #d5dceb; border-radius:13px; color:var(--ink); background:#fff; font:inherit; } .selection,.notice { line-height:1.6; } .selection { margin:20px 0 0; padding:16px; border-radius:14px; color:#6070a5; background:var(--sky); } .complete-button { width:100%; margin-top:24px; color:#fff; border-color:var(--orange); background:var(--orange); } .complete-button:disabled { cursor:not-allowed; color:#8b94aa; border-color:#e4e8ee; background:#eef0f3; box-shadow:none; transform:none; } .notice { margin:20px 4px 0; color:#69758c; font-size:.84rem; }
+    main { margin-top:-25px; } .card { padding:24px; border-radius:22px; background:#ffffffeb; box-shadow:0 10px 28px #1c5c7f24; } h2 { margin:0 0 18px; font-size:1.3rem; } h3 { margin:0; font-size:1.07rem; }
+    .mode-buttons { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; } button { min-height:56px; border:2px solid #cbe8f6; border-radius:15px; padding:10px; cursor:pointer; font:inherit; font-weight:700; color:var(--navy); background:#f7fcff; transition:.2s; } button:hover,button:focus-visible { transform:translateY(-2px); border-color:var(--blue); } button.selected { color:#fff; border-color:var(--navy); background:var(--navy); box-shadow:0 6px 14px #075b9a33; }
+    label { display:block; margin:18px 0 8px; font-weight:700; } select,input[type="date"] { width:100%; min-height:54px; padding:0 14px; border:1px solid #b9ddec; border-radius:13px; color:var(--ink); background:#fff; font:inherit; } .selection,.notice { line-height:1.6; } .selection { margin:20px 0 0; padding:16px; border-radius:14px; color:#07578d; background:var(--sky); } .complete-button { width:100%; margin-top:24px; color:#fff; border-color:var(--orange); background:var(--orange); } .complete-button:disabled { cursor:not-allowed; color:#8b94aa; border-color:#e4e8ee; background:#eef0f3; box-shadow:none; transform:none; } .notice { margin:20px 4px 0; color:#547389; font-size:.84rem; }
     #result-screen { display:none; margin-top:28px; } .back { min-height:44px; margin:0 0 18px 4px; padding:7px 12px; border:0; color:#6070a5; background:transparent; } .result-heading { margin:0 0 5px; color:var(--navy); font-size:1.7rem; } .result-sub { margin:0 0 20px; color:#74809b; } .section-title { margin:26px 0 12px; font-size:1.22rem; } .food-feature { overflow:hidden; border-radius:19px; background:#fff; box-shadow:0 7px 20px #7d86a51c; } .food-feature img { display:block; width:100%; height:220px; object-fit:cover; } .food-copy { padding:18px; } .tag { display:inline-block; margin-bottom:9px; padding:5px 10px; border-radius:99px; color:#667db0; font-size:.78rem; font-weight:bold; background:#edf0ff; } .food-copy p,.restaurant p { margin:8px 0 0; line-height:1.65; font-size:.92rem; } .food-list { display:grid; gap:9px; margin-top:12px; } .food-item { padding:13px 15px; border-radius:13px; background:#f5f8ff; font-size:.91rem; line-height:1.45; }
     .restaurant-list { display:grid; gap:12px; } .restaurant { position:relative; width:100%; min-height:0; padding:18px 60px 18px 18px; text-align:left; border:1px solid #e2e4f0; background:#fff; } .restaurant:hover { background:#fafaff; } .rank { display:inline-grid; place-items:center; width:26px; height:26px; margin-right:6px; border-radius:50%; color:#fff; background:var(--blue); font-size:.82rem; } .arrow { position:absolute; right:18px; top:50%; transform:translateY(-50%); color:var(--blue); font-size:1.45rem; } .meta { color:#758099; font-size:.8rem; }
     #map { height:400px; overflow:hidden; border:5px solid #fff; border-radius:24px; box-shadow:0 8px 22px #7d86a52b; } .map-legend { display:flex; gap:7px; align-items:center; margin:12px 4px; color:#6b768e; font-size:.85rem; } .bin-mini { font-size:1.2rem; } .bin-note { margin:0; padding:13px; border-radius:12px; color:#6070a5; line-height:1.55; font-size:.88rem; background:#f0f6ff; } .bin-icon, .restaurant-icon { display:grid; place-items:center; width:38px; height:38px; border:3px solid #fff; border-radius:50%; font-size:20px; background:#fff; box-shadow:0 3px 9px #7c8bbc55; } .restaurant-icon { background:#fff5f0; }
     #restaurant-map { height:300px; overflow:hidden; border:5px solid #fff; border-radius:22px; box-shadow:0 8px 22px #7d86a52b; } #restaurant-detail-screen { margin-top:28px; } .info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:18px 0; } .info-box { padding:13px 8px; border-radius:14px; text-align:center; background:#f5f8ff; } .info-box span { display:block; margin-bottom:5px; color:#7c88a5; font-size:.75rem; } .info-box strong { color:var(--navy); font-size:.87rem; } .menu-list { display:grid; gap:8px; margin:10px 0 20px; } .menu-row { display:flex; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #e8eaf1; background:#fff; font-size:.9rem; } .review-list { display:grid; gap:10px; margin:10px 0 22px; } .review { margin:0; padding:16px; border-radius:15px; line-height:1.65; background:#fff8f4; } .review small { display:block; margin-top:8px; color:#8b7890; }
     .route-panel { margin:12px 0 4px; padding:13px; border-radius:14px; background:#f7f5ff; } .route-buttons { display:flex; gap:8px; } .route-buttons button { min-height:42px; flex:1; padding:8px; border-color:#dcd6f0; font-size:.85rem; } .route-buttons button:last-child { color:#fff; border-color:#8f82c3; background:#8f82c3; } .route-info { margin:10px 0 0; color:#65708d; font-size:.84rem; line-height:1.5; }
     dialog { width:min(92vw,470px); border:0; border-radius:20px; color:var(--ink); box-shadow:0 16px 48px #001f3880; } dialog::backdrop { background:#052e4b85; } .modal-close { float:right; min-height:34px; border:0; padding:4px 9px; background:#eef8fc; } .modal-text { padding-top:18px; line-height:1.75; } .hidden { display:none!important; }
+    .settings-button { position:absolute; z-index:10; top:18px; right:18px; min-height:42px; min-width:42px; padding:6px 10px; border-color:#ffffff80; color:#07578d; background:#fff; font-size:.88rem; }
+    #theme-dialog { padding:22px; background:#fff; } #theme-dialog h2 { padding-right:42px; } .theme-options { display:grid; gap:10px; margin-top:18px; } .theme-choice { display:flex; align-items:center; gap:10px; width:100%; text-align:left; } .theme-choice.active { color:#fff; border-color:var(--navy); background:var(--navy); }
+    body.dark-mode { --navy:#79d4ff; --blue:#28a9ea; --sky:#173d55; --ink:#e6f6ff; background:linear-gradient(160deg,#071c2c,#0d3048 52%,#082538); } body.dark-mode .card, body.dark-mode .food-feature, body.dark-mode .restaurant, body.dark-mode .menu-row { background:#102f43; box-shadow:0 10px 28px #00000045; } body.dark-mode button { border-color:#35647b; color:#dff5ff; background:#143b52; } body.dark-mode button.selected, body.dark-mode .theme-choice.active { color:#05283d; border-color:#79d4ff; background:#79d4ff; } body.dark-mode .complete-button { color:#fff; border-color:var(--orange); background:var(--orange); } body.dark-mode select, body.dark-mode input[type="date"] { border-color:#35647b; color:#e6f6ff; background:#143b52; } body.dark-mode .selection, body.dark-mode .food-item, body.dark-mode .info-box, body.dark-mode .route-panel { color:#e6f6ff; background:#173d55; } body.dark-mode .restaurant:hover { background:#19465f; } body.dark-mode .review { background:#283a49; } body.dark-mode .bin-note { color:#d8effb; background:#173d55; } body.dark-mode #theme-dialog { color:#e6f6ff; background:#102f43; } body.dark-mode .modal-close { color:#e6f6ff; background:#173d55; }
     @media(max-width:420px){ .app{padding:16px 14px 30px} header{padding:22px 12px 46px;border-radius:22px}.card{padding:20px 16px}.mode-buttons{gap:8px}button{font-size:.91rem}#map{height:350px} }
   </style>
 </head>
 <body>
   <div class="app">
+    <button type="button" class="settings-button" id="settings-button" aria-label="화면 설정 열기">⚙ 설정</button>
     <header><p class="eyebrow">BUSAN BEACH TRAVEL GUIDE</p><h1>맛픽 in Busan</h1><p class="app-intro">맛집 추천 모드는 여행 시기와 방문 장소 근처의 맛집을 알려드려요.<br>쓰레기통 알리미 모드는 외부에서 음식을 먹은 뒤 뒷정리할 수 있는 쓰레기통 위치를 안내해요.</p></header>
     <main>
       <section class="card" id="selection-screen" aria-labelledby="start-title">
@@ -68,6 +72,7 @@
     </main>
   </div>
   <dialog id="restaurant-modal"><button class="modal-close" id="modal-close">닫기</button><div class="modal-text" id="modal-text"></div></dialog>
+  <dialog id="theme-dialog" aria-labelledby="theme-title"><button type="button" class="modal-close" id="theme-close" aria-label="설정 창 닫기">닫기</button><h2 id="theme-title">화면 설정</h2><p class="modal-text">원하는 화면 밝기를 선택해 주세요.</p><div class="theme-options"><button type="button" class="theme-choice" data-theme="light">☀️ 라이트 모드</button><button type="button" class="theme-choice" data-theme="dark">🌙 다크 모드</button></div></dialog>
   <script>
     (function () {
       var currentMode = 'food';
@@ -171,6 +176,35 @@
       function showCurrentLocation(kind) { var info=document.getElementById(kind+'-route-info'); if(!navigator.geolocation){info.textContent='이 브라우저에서는 현재 위치 기능을 사용할 수 없어요.';return;}info.textContent='현재 위치를 불러오는 중입니다…';navigator.geolocation.getCurrentPosition(function(position){currentLocation=[position.coords.latitude,position.coords.longitude];var targetMap=kind==='bin'?binMap:restaurantMap;if(!targetMap){info.textContent='지도가 열린 뒤 다시 눌러 주세요.';return;}var marker=kind==='bin'?binCurrentMarker:restaurantCurrentMarker;if(marker)targetMap.removeLayer(marker);marker=L.circleMarker(currentLocation,{radius:9,color:'#fff',weight:3,fillColor:'#e84d4d',fillOpacity:1}).addTo(targetMap).bindPopup('🔴 내 현재 위치');if(kind==='bin')binCurrentMarker=marker;else restaurantCurrentMarker=marker;info.textContent='🔴 현재 위치가 빨간 원으로 표시됐어요.';},function(){info.textContent='위치 권한이 필요합니다. 브라우저에서 위치 접근을 허용해 주세요.';},{enableHighAccuracy:true,timeout:10000});}
       function showWalkingRoute(kind) { var destination=kind==='bin'?binDestination:restaurantDestination;var info=document.getElementById(kind+'-route-info');if(!destination){info.textContent=kind==='bin'?'먼저 지도에서 쓰레기통 아이콘을 선택해 주세요.':'식당 위치를 불러오는 중입니다.';return;}if(!currentLocation){showCurrentLocation(kind);info.textContent='현재 위치가 표시되면 길찾기를 한 번 더 눌러 주세요.';return;}info.textContent='도보 경로를 계산하는 중입니다…';fetch('https://routing.openstreetmap.de/routed-foot/route/v1/driving/'+currentLocation[1]+','+currentLocation[0]+';'+destination[1]+','+destination[0]+'?overview=full&geometries=geojson&steps=true').then(function(response){return response.json();}).then(function(data){if(!data.routes||!data.routes[0])throw new Error();var route=data.routes[0],targetMap=kind==='bin'?binMap:restaurantMap,line=kind==='bin'?binRouteLine:restaurantRouteLine;if(line)targetMap.removeLayer(line);line=L.geoJSON(route.geometry,{style:{color:'#8f82c3',weight:5,opacity:.85}}).addTo(targetMap);if(kind==='bin')binRouteLine=line;else restaurantRouteLine=line;targetMap.fitBounds(line.getBounds(),{padding:[24,24]});info.textContent='🚶 도보 약 '+Math.max(1,Math.round(route.duration/60))+'분 · '+(route.distance/1000).toFixed(1)+'km · OpenStreetMap 보행 경로';}).catch(function(){info.textContent='경로를 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.';});}
       document.getElementById('bin-location-button').addEventListener('click',function(){showCurrentLocation('bin');});document.getElementById('restaurant-location-button').addEventListener('click',function(){showCurrentLocation('restaurant');});document.getElementById('bin-route-button').addEventListener('click',function(){showWalkingRoute('bin');});document.getElementById('restaurant-route-button').addEventListener('click',function(){showWalkingRoute('restaurant');});document.getElementById('back-button').addEventListener('click',resetToChoice); document.getElementById('detail-back-button').addEventListener('click',function(){document.getElementById('restaurant-detail-screen').style.display='none';document.getElementById('result-screen').style.display='block';window.scrollTo(0,0);});
+    }());
+  </script>
+  <script>
+    (function () {
+      var dialog = document.getElementById('theme-dialog');
+      var openButton = document.getElementById('settings-button');
+      var closeButton = document.getElementById('theme-close');
+      var choices = document.querySelectorAll('[data-theme]');
+
+      function setTheme(theme) {
+        var dark = theme === 'dark';
+        document.body.classList.toggle('dark-mode', dark);
+        for (var i = 0; i < choices.length; i += 1) {
+          choices[i].classList.toggle('active', choices[i].getAttribute('data-theme') === theme);
+        }
+        try { localStorage.setItem('matpick-theme', theme); } catch (error) {}
+      }
+
+      var savedTheme = 'light';
+      try { savedTheme = localStorage.getItem('matpick-theme') || 'light'; } catch (error) {}
+      setTheme(savedTheme);
+      openButton.addEventListener('click', function () { dialog.showModal(); });
+      closeButton.addEventListener('click', function () { dialog.close(); });
+      for (var j = 0; j < choices.length; j += 1) {
+        choices[j].addEventListener('click', function () {
+          setTheme(this.getAttribute('data-theme'));
+          dialog.close();
+        });
+      }
     }());
   </script>
 </body>
