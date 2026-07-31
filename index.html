@@ -75,6 +75,17 @@
       var summaryText = document.getElementById('selection-text');
       var modeButtons = document.querySelectorAll('[data-mode]');
 
+      function toDateValue(date) {
+        var year = date.getFullYear();
+        var month = String(date.getMonth() + 1).padStart(2, '0');
+        var day = String(date.getDate()).padStart(2, '0');
+        return year + '-' + month + '-' + day;
+      }
+      var today = new Date();
+      var oneYearLater = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+      dateInput.min = toDateValue(today);
+      dateInput.max = toDateValue(oneYearLater);
+
       window.refreshPick = function () {
         var ready = beachSelect.value !== '' && (currentMode === 'bin' || dateInput.value !== '');
         completeButton.disabled = !ready;
