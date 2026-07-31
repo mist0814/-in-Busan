@@ -20,7 +20,8 @@
     .route-panel { margin:12px 0 4px; padding:13px; border-radius:14px; background:#f7f5ff; } .route-buttons { display:flex; gap:8px; } .route-buttons button { min-height:42px; flex:1; padding:8px; border-color:#dcd6f0; font-size:.85rem; } .route-buttons button:last-child { color:#fff; border-color:#8f82c3; background:#8f82c3; } .route-info { margin:10px 0 0; color:#65708d; font-size:.84rem; line-height:1.5; }
     dialog { width:min(92vw,470px); border:0; border-radius:20px; color:var(--ink); box-shadow:0 16px 48px #001f3880; } dialog::backdrop { background:#052e4b85; } .modal-close { float:right; min-height:34px; border:0; padding:4px 9px; background:#eef8fc; } .modal-text { padding-top:18px; line-height:1.75; } .hidden { display:none!important; }
     .settings-button { position:absolute; z-index:10; top:18px; right:18px; min-height:42px; min-width:42px; padding:6px 10px; border-color:#ffffff80; color:#07578d; background:#fff; font-size:.88rem; }
-    #theme-dialog { padding:22px; background:#fff; } #theme-dialog h2 { padding-right:42px; } .theme-options { display:grid; gap:10px; margin-top:18px; } .theme-choice { display:flex; align-items:center; gap:10px; width:100%; text-align:left; } .theme-choice.active { color:#fff; border-color:var(--navy); background:var(--navy); }
+    #english-date-picker { display:none; grid-template-columns:1.2fr 1fr 1fr; gap:8px; } #english-date-picker select { min-height:54px; padding:0 10px; border:1px solid #b9ddec; border-radius:13px; color:var(--ink); background:#fff; font:inherit; } body.english-mode #travel-date { display:none; } body.english-mode #english-date-picker { display:grid; }
+    #theme-dialog { padding:22px; background:#fff; } #theme-dialog h2 { padding-right:42px; } .theme-options { display:grid; gap:10px; margin-top:18px; } .theme-choice { display:flex; align-items:center; gap:10px; width:100%; text-align:left; } .theme-choice.active { color:#fff; border-color:var(--navy); background:var(--navy); } .setting-section { margin-top:22px; padding-top:18px; border-top:1px solid #cbe8f6; }
     body.dark-mode { --navy:#79d4ff; --blue:#28a9ea; --sky:#173d55; --ink:#e6f6ff; background:linear-gradient(160deg,#071c2c,#0d3048 52%,#082538); } body.dark-mode .card, body.dark-mode .food-feature, body.dark-mode .restaurant, body.dark-mode .menu-row { background:#102f43; box-shadow:0 10px 28px #00000045; } body.dark-mode button { border-color:#35647b; color:#dff5ff; background:#143b52; } body.dark-mode button.selected, body.dark-mode .theme-choice.active { color:#05283d; border-color:#79d4ff; background:#79d4ff; } body.dark-mode .complete-button { color:#fff; border-color:var(--orange); background:var(--orange); } body.dark-mode select, body.dark-mode input[type="date"] { border-color:#35647b; color:#e6f6ff; background:#143b52; } body.dark-mode .selection, body.dark-mode .food-item, body.dark-mode .info-box, body.dark-mode .route-panel { color:#e6f6ff; background:#173d55; } body.dark-mode .restaurant:hover { background:#19465f; } body.dark-mode .review { background:#283a49; } body.dark-mode .bin-note { color:#d8effb; background:#173d55; } body.dark-mode #theme-dialog { color:#e6f6ff; background:#102f43; } body.dark-mode .modal-close { color:#e6f6ff; background:#173d55; }
     @media(max-width:420px){ .app{padding:16px 14px 30px} header{padding:22px 12px 46px;border-radius:22px}.card{padding:20px 16px}.mode-buttons{gap:8px}button{font-size:.91rem}#map{height:350px} }
   </style>
@@ -35,7 +36,7 @@
         <div class="mode-buttons" aria-label="이용 모드 선택"><button type="button" class="selected" data-mode="food" aria-pressed="true" onclick="window.pickMode('food')">🍽️ 맛집 추천</button><button type="button" data-mode="bin" aria-pressed="false" onclick="window.pickMode('bin')">🗑️ 쓰레기통 알리미</button></div>
         <label for="beach">부산 해수욕장 선택</label>
         <select id="beach" onchange="window.refreshPick()"><option value="" selected disabled>해수욕장을 선택해 주세요</option><option value="해운대 해수욕장">해운대 해수욕장</option><option value="광안리 해수욕장">광안리 해수욕장</option><option value="송정 해수욕장">송정 해수욕장</option><option value="다대포 해수욕장">다대포 해수욕장</option><option value="송도 해수욕장">송도 해수욕장</option></select>
-        <div id="date-field"><label for="travel-date">여행 날짜 선택</label><input id="travel-date" type="date" onchange="window.refreshPick()" oninput="window.refreshPick()"></div>
+        <div id="date-field"><label for="travel-date">여행 날짜 선택</label><input id="travel-date" type="date" onchange="window.refreshPick()" oninput="window.refreshPick()"><div id="english-date-picker" aria-label="Choose a travel date"><select id="english-year" aria-label="YEAR"></select><select id="english-month" aria-label="MONTH"></select><select id="english-day" aria-label="DAY"></select></div></div>
         <p class="selection" id="selection-text"><strong>맛집 추천 모드</strong>를 선택했어요. 해수욕장과 여행 날짜를 골라 주세요.</p>
         <button type="button" class="complete-button" id="complete-button" disabled onclick="window.completePick()">선택 완료</button>
       </section>
@@ -72,7 +73,7 @@
     </main>
   </div>
   <dialog id="restaurant-modal"><button class="modal-close" id="modal-close">닫기</button><div class="modal-text" id="modal-text"></div></dialog>
-  <dialog id="theme-dialog" aria-labelledby="theme-title"><button type="button" class="modal-close" id="theme-close" aria-label="설정 창 닫기">닫기</button><h2 id="theme-title">화면 설정</h2><p class="modal-text">원하는 화면 밝기를 선택해 주세요.</p><div class="theme-options"><button type="button" class="theme-choice" data-theme="light">☀️ 라이트 모드</button><button type="button" class="theme-choice" data-theme="dark">🌙 다크 모드</button></div></dialog>
+  <dialog id="theme-dialog" aria-labelledby="theme-title"><button type="button" class="modal-close" id="theme-close" aria-label="설정 창 닫기">닫기</button><h2 id="theme-title">화면 설정</h2><p class="modal-text">원하는 화면 밝기를 선택해 주세요.</p><div class="theme-options"><button type="button" class="theme-choice" data-theme="light">☀️ 라이트 모드</button><button type="button" class="theme-choice" data-theme="dark">🌙 다크 모드</button></div><div class="setting-section"><h3>언어 설정</h3><p class="modal-text">앱에서 표시할 언어를 선택해 주세요.</p><div class="theme-options"><button type="button" class="theme-choice" data-language="ko">🇰🇷 한국어</button><button type="button" class="theme-choice" data-language="en">🇺🇸 English</button></div></div></dialog>
   <script>
     (function () {
       var currentMode = 'food';
@@ -205,6 +206,50 @@
           dialog.close();
         });
       }
+    }());
+  </script>
+  <script>
+    (function () {
+      var languageButtons = document.querySelectorAll('[data-language]');
+      var english = false;
+      function put(selector, value) { var element = document.querySelector(selector); if (element) element.textContent = value; }
+      function translateOutput() {
+        if (!english) return;
+        var month = Number(document.getElementById('travel-date').value.slice(5,7)); var seasonName = month >= 3 && month <= 5 ? 'Spring' : month >= 6 && month <= 8 ? 'Summer' : month >= 9 && month <= 11 ? 'Autumn' : 'Winter'; put('#result-date', 'Seasonal recommendations for your trip'); put('#season-tag', seasonName + ' seasonal food'); put('#season-title', 'Fresh seasonal food from Busan'); put('#season-description', 'Enjoy this seasonal food during your Busan beach trip.');
+        var foods = document.getElementById('food-list'); if (foods) foods.innerHTML = '<div class="food-item">🥢 A seasonal dish selected for your travel date</div><div class="food-item">🥢 A fresh local seafood option</div><div class="food-item">🥢 A Busan-style meal to enjoy by the beach</div>';
+        document.querySelectorAll('#restaurant-list .meta').forEach(function (item, index) { item.textContent = 'Recommended restaurant · ' + [4,7,3][index] + '-min walk from the beach'; });
+        put('#bin-note', 'Tap a bin icon to view its prototype location. Please confirm the actual location on site.'); put('#bin-route-info', 'Select a bin icon and tap Directions to see the walking route.'); put('#restaurant-route-info', 'Allow location access to see walking time and a route.');
+        put('#detail-category', 'Restaurant information · prototype data'); put('#detail-walk', 'Walking distance'); put('#detail-price', 'Check price on site');
+        var menu = document.getElementById('detail-menu'); if (menu && menu.children.length) menu.innerHTML = '<div class="menu-row"><span>Signature menu</span><strong>Check price on site</strong></div><div class="menu-row"><span>Seasonal special</span><strong>Check price on site</strong></div><div class="menu-row"><span>Today’s recommendation</span><strong>Check price on site</strong></div>';
+        var reviews = document.getElementById('detail-review'); if (reviews && reviews.children.length) reviews.innerHTML = '<div class="review">“A clean and comfortable stop during a beach trip.”<small>— Matpick sample review 1</small></div><div class="review">“Close to the beach, so it is easy to visit after a walk.”<small>— Matpick sample review 2</small></div><div class="review">“The signature menu was memorable. I would visit again.”<small>— Matpick sample review 3</small></div>';
+      }
+      function setupEnglishDatePicker() {
+        var hiddenDate = document.getElementById('travel-date'); var year = document.getElementById('english-year'); var month = document.getElementById('english-month'); var day = document.getElementById('english-day');
+        function option(value, label) { return '<option value="' + value + '">' + label + '</option>'; }
+        function updateMonths() { var min = new Date(hiddenDate.min + 'T00:00:00'); var max = new Date(hiddenDate.max + 'T00:00:00'); var selectedYear = Number(year.value); for (var i = 1; i < month.options.length; i += 1) { var monthNumber = Number(month.options[i].value); var first = new Date(selectedYear, monthNumber - 1, 1); var last = new Date(selectedYear, monthNumber, 0); month.options[i].disabled = !selectedYear || last < min || first > max; } if (month.selectedOptions[0] && month.selectedOptions[0].disabled) month.value = ''; }
+        function fillDays() { updateMonths(); var min = new Date(hiddenDate.min + 'T00:00:00'); var max = new Date(hiddenDate.max + 'T00:00:00'); var selectedYear = Number(year.value); var selectedMonth = Number(month.value); var count = selectedYear && selectedMonth ? new Date(selectedYear, selectedMonth, 0).getDate() : 31; var current = day.value; day.innerHTML = option('', 'DAY'); for (var d = 1; d <= count; d += 1) { var candidate = new Date(selectedYear, selectedMonth - 1, d); var disabled = !selectedYear || !selectedMonth || candidate < min || candidate > max; day.innerHTML += '<option value="' + String(d).padStart(2, '0') + '"' + (disabled ? ' disabled' : '') + '>' + String(d).padStart(2, '0') + '</option>'; } if (current && Number(current) <= count && !day.querySelector('option[value="' + current + '"]').disabled) day.value = current; }
+        if (!year.options.length) { var today = new Date(); year.innerHTML = option('', 'YEAR') + option(today.getFullYear(), today.getFullYear()) + option(today.getFullYear() + 1, today.getFullYear() + 1); month.innerHTML = option('', 'MONTH'); for (var m = 1; m <= 12; m += 1) month.innerHTML += option(String(m).padStart(2, '0'), String(m).padStart(2, '0')); fillDays(); year.addEventListener('change', fillDays); month.addEventListener('change', fillDays); [year, month, day].forEach(function (select) { select.addEventListener('change', function () { if (year.value && month.value && day.value) { var value = year.value + '-' + month.value + '-' + day.value; if (value >= hiddenDate.min && value <= hiddenDate.max) { hiddenDate.value = value; hiddenDate.dispatchEvent(new Event('change', {bubbles:true})); } } }); }); }
+        if (hiddenDate.value) { var parts = hiddenDate.value.split('-'); year.value = parts[0]; month.value = parts[1]; fillDays(); day.value = parts[2]; }
+      }
+      function applyEnglish() {
+        english = true; document.documentElement.lang = 'en'; document.title = 'Matpick in Busan';
+        put('.settings-button', '⚙ Settings'); put('#theme-close', 'Close'); put('#theme-title', 'Display settings'); put('.setting-section h3', 'Language');
+        put('[data-theme="light"]', '☀️ Light mode'); put('[data-theme="dark"]', '🌙 Dark mode'); put('[data-language="ko"]', '🇰🇷 Korean'); put('[data-language="en"]', '🇺🇸 English');
+        put('.app-intro', 'Restaurant Picks recommends places to eat near your beach and travel date. Bin Finder helps you find a bin for easy clean-up after eating outdoors.'); put('#start-title', 'What are you looking for?'); put('[data-mode="food"]', '🍽️ Restaurant Picks'); put('[data-mode="bin"]', '🗑️ Bin Finder'); put('label[for="beach"]', 'Choose a Busan beach'); put('label[for="travel-date"]', 'Choose a travel date'); document.body.classList.add('english-mode'); setupEnglishDatePicker(); put('#complete-button', 'Continue'); put('#back-button', '← Choose again'); put('#detail-back-button', '← Back to restaurant list');
+        var beachOptions = document.querySelectorAll('#beach option'); var beachLabels = ['Select a beach', '해운대 Beach', '광안리 Beach', '송정 Beach', '다대포 Beach', '송도 Beach']; beachOptions.forEach(function (option, index) { if (beachLabels[index]) option.textContent = beachLabels[index]; });
+        document.querySelectorAll('.section-title').forEach(function (title, index) { var labels=['Seasonal food for this trip','Recommended nearby restaurants','Signature menu','Visitor reviews','Restaurant location']; if (labels[index]) title.textContent=labels[index]; });
+        put('#bin-result .result-sub', 'Tap an icon to view its location.'); put('#bin-location-button', '🔴 My location'); put('#bin-route-button', '🚶 Directions'); put('#restaurant-location-button', '🔴 My location'); put('#restaurant-route-button', '🚶 Directions');
+        put('#selection-text', 'Choose a beach and travel date, then tap Continue.');
+        translateOutput();
+      }
+      function choose(language) { try { localStorage.setItem('matpick-language', language); } catch (error) {} if (language === 'ko') { window.location.reload(); return; } applyEnglish(); document.getElementById('theme-dialog').close(); }
+      var saved = 'ko'; try { saved = localStorage.getItem('matpick-language') || 'ko'; } catch (error) {} if (saved === 'en') applyEnglish();
+      languageButtons.forEach(function (button) { button.classList.toggle('active', button.dataset.language === saved); button.addEventListener('click', function () { choose(button.dataset.language); }); });
+      window.addEventListener('matpick-complete', function () { setTimeout(translateOutput, 700); });
+      document.getElementById('complete-button').addEventListener('click', function () { setTimeout(translateOutput, 800); });
+      document.getElementById('beach').addEventListener('change', function () { if (english) put('#selection-text', 'Choose a beach and travel date, then tap Continue.'); });
+      document.getElementById('travel-date').addEventListener('change', function () { if (english) put('#selection-text', 'Choose a beach and travel date, then tap Continue.'); });
+      document.addEventListener('click', function (event) { if (event.target.closest('[data-mode]') && english) setTimeout(function () { put('#selection-text', 'Choose a beach and travel date, then tap Continue.'); }, 0); if (event.target.closest('.restaurant')) setTimeout(translateOutput, 30); });
     }());
   </script>
 </body>
